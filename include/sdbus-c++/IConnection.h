@@ -82,6 +82,13 @@ namespace sdbus {
         virtual std::string getUniqueName() const = 0;
 
         /*!
+         * \brief Retrieve the dbus address. E.g. "unix:path=/tmp/..."
+         *
+         * \return the dbus address
+         */
+        virtual std::string getAddress() const = 0;
+
+        /*!
          * @brief Enters I/O event loop on this bus connection
          *
          * The incoming D-Bus messages are processed in the loop. The method
@@ -285,6 +292,15 @@ namespace sdbus {
     [[nodiscard]] std::unique_ptr<sdbus::IConnection> createSystemBusConnection(const std::string& name);
 
     /*!
+     * \brief Creates/opens D-Bus system connection with address
+     * \param[in] address Address for D-Bus. E.g.: "unix:path=/tmp/sdbus.bus"
+     * \return Connection instance
+     *
+     * @throws sdbus::Error in case of failure
+     */
+    [[nodiscard]] std::unique_ptr<sdbus::IConnection> createSystemBusConnectionWithAddress(const std::string& address);
+
+    /*!
      * @brief Creates/opens D-Bus session connection
      *
      * @return Connection instance
@@ -292,6 +308,15 @@ namespace sdbus {
      * @throws sdbus::Error in case of failure
      */
     [[nodiscard]] std::unique_ptr<sdbus::IConnection> createSessionBusConnection();
+
+    /*!
+     * \brief Creates/opens D-Bus session connection with address
+     * \param[in] address Address for D-Bus. E.g.: "unix:path=/tmp/sdbus.bus"
+     * \return Connection instance
+     *
+     * @throws sdbus::Error in case of failure
+     */
+    [[nodiscard]] std::unique_ptr<sdbus::IConnection> createSessionBusConnectionWithAddress(const std::string& address);
 
     /*!
      * @brief Creates/opens D-Bus session connection with a name

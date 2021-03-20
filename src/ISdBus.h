@@ -69,8 +69,10 @@ namespace sdbus::internal {
         virtual int sd_bus_open_user(sd_bus **ret) = 0;
         virtual int sd_bus_open_system(sd_bus **ret) = 0;
         virtual int sd_bus_open_system_remote(sd_bus **ret, const char* host) = 0;
+        virtual int sd_bus_get_address(sd_bus *bus, const char **address) = 0;
         virtual int sd_bus_request_name(sd_bus *bus, const char *name, uint64_t flags) = 0;
         virtual int sd_bus_release_name(sd_bus *bus, const char *name) = 0;
+        virtual int sd_bus_set_address(sd_bus *bus, const char *address) = 0;
         virtual int sd_bus_get_unique_name(sd_bus *bus, const char **name) = 0;
         virtual int sd_bus_add_object_vtable(sd_bus *bus, sd_bus_slot **slot, const char *path, const char *interface, const sd_bus_vtable *vtable, void *userdata) = 0;
         virtual int sd_bus_add_object_manager(sd_bus *bus, sd_bus_slot **slot, const char *path) = 0;

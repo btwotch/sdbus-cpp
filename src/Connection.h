@@ -53,11 +53,14 @@ namespace sdbus::internal {
         struct remote_system_bus_t{};
 
         Connection(std::unique_ptr<ISdBus>&& interface, system_bus_t);
+        Connection(std::unique_ptr<ISdBus>&& interface, system_bus_t, const std::string &address);
         Connection(std::unique_ptr<ISdBus>&& interface, session_bus_t);
+        Connection(std::unique_ptr<ISdBus>&& interface, session_bus_t, const std::string &address);
         Connection(std::unique_ptr<ISdBus>&& interface, remote_system_bus_t, const std::string& host);
         ~Connection() override;
 
         void requestName(const std::string& name) override;
+        std::string getAddress() const override;
         void releaseName(const std::string& name) override;
         std::string getUniqueName() const override;
         void enterEventLoop() override;

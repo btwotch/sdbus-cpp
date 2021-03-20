@@ -183,6 +183,20 @@ int SdBus::sd_bus_request_name(sd_bus *bus, const char *name, uint64_t flags)
     return ::sd_bus_request_name(bus, name, flags);
 }
 
+int SdBus::sd_bus_set_address(sd_bus *bus, const char *address)
+{
+    std::lock_guard lock(sdbusMutex_);
+
+    return ::sd_bus_set_address(bus, address);
+}
+
+int SdBus::sd_bus_get_address(sd_bus *bus, const char **address)
+{
+    std::lock_guard lock(sdbusMutex_);
+
+    return ::sd_bus_get_address(bus, address);
+}
+
 int SdBus::sd_bus_release_name(sd_bus *bus, const char *name)
 {
     std::lock_guard lock(sdbusMutex_);

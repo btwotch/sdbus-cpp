@@ -50,6 +50,14 @@ TEST(Connection, CanBeDefaultConstructed)
     ASSERT_NO_THROW(auto con = sdbus::createConnection());
 }
 
+TEST(Connection, CanBeConstructedWithAddress)
+{
+    auto connection = sdbus::createSystemBusConnectionWithAddress("unix:path=/tmp/sdbus.sock");
+    std::string addr = connection->getAddress();
+    std::cerr << ">>>>>> address: " << addr << std::endl;
+    exit(1);
+}
+
 TEST(Connection, CanRequestRegisteredDbusName)
 {
     auto connection = sdbus::createConnection();

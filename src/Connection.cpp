@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <poll.h>
 #include <sys/eventfd.h>
+#include <iostream>
 
 namespace sdbus::internal {
 
@@ -49,8 +50,27 @@ Connection::Connection(std::unique_ptr<ISdBus>&& interface, system_bus_t)
 {
 }
 
+Connection::Connection(std::unique_ptr<ISdBus>&& interface, system_bus_t, const std::string& address)
+    : Connection(std::move(interface), [this, &address](sd_bus** bus){
+    auto b = iface_->sd_bus_open_system(bus);
+    std::cerr << ">>>> calling sd_bus_set_address with " << address << std::endl;
+    auto r = iface_->sd_bus_set_address(*bus, address.c_str());
+    SDBUS_THROW_ERROR_IF(r < 0, "Failed to set dbus address", -r);
+    return b;})
+{
+}
+
 Connection::Connection(std::unique_ptr<ISdBus>&& interface, session_bus_t)
     : Connection(std::move(interface), [this](sd_bus** bus){ return iface_->sd_bus_open_user(bus); })
+{
+}
+
+Connection::Connection(std::unique_ptr<ISdBus>&& interface, session_bus_t, const std::string& address)
+    : Connection(std::move(interface), [this, &address](sd_bus** bus){
+    auto b = iface_->sd_bus_open_user(bus);
+    auto r = iface_->sd_bus_set_address(*bus, address.c_str());
+    SDBUS_THROW_ERROR_IF(r < 0, "Failed to set dbus address", -r);
+    return b;})
 {
 }
 
@@ -68,6 +88,14 @@ void Connection::requestName(const std::string& name)
 {
     auto r = iface_->sd_bus_request_name(bus_.get(), name.c_str(), 0);
     SDBUS_THROW_ERROR_IF(r < 0, "Failed to request bus name", -r);
+}
+
+std::string Connection::getAddress() const
+{
+    const char* address = nullptr;
+    auto r = iface_->sd_bus_get_address(bus_.get(), &address);
+    SDBUS_THROW_ERROR_IF(r < 0, "Failed to request address", -r);
+    return address;
 }
 
 void Connection::releaseName(const std::string& name)
@@ -486,6 +514,14 @@ std::unique_ptr<sdbus::IConnection> createSystemBusConnection()
     return std::make_unique<sdbus::internal::Connection>(std::move(interface), system_bus);
 }
 
+std::unique_ptr<sdbus::IConnection> createSystemBusConnectionWithAddress(const std::string& address)
+{
+    auto interface = std::make_unique<sdbus::internal::SdBus>();
+    assert(interface != nullptr);
+    constexpr sdbus::internal::Connection::system_bus_t system_bus;
+    return std::make_unique<sdbus::internal::Connection>(std::move(interface), system_bus, address);
+}
+
 std::unique_ptr<sdbus::IConnection> createSystemBusConnection(const std::string& name)
 {
     auto conn = createSystemBusConnection();
@@ -499,6 +535,14 @@ std::unique_ptr<sdbus::IConnection> createSessionBusConnection()
     assert(interface != nullptr);
     constexpr sdbus::internal::Connection::session_bus_t session_bus;
     return std::make_unique<sdbus::internal::Connection>(std::move(interface), session_bus);
+}
+
+std::unique_ptr<sdbus::IConnection> createSessionBusConnectionWithAddress(const std::string& address)
+{
+    auto interface = std::make_unique<sdbus::internal::SdBus>();
+    assert(interface != nullptr);
+    constexpr sdbus::internal::Connection::session_bus_t session_bus;
+    return std::make_unique<sdbus::internal::Connection>(std::move(interface), session_bus, address);
 }
 
 std::unique_ptr<sdbus::IConnection> createSessionBusConnection(const std::string& name)
